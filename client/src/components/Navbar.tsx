@@ -1,9 +1,6 @@
-/*
- * DESIGN: Obsidian Architecture — fixed top nav, glassmorphism on scroll
- * Thin horizontal rule with glowing endpoints as design motif
- */
-import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import BrandLogo from "./BrandLogo";
 
 const navLinks = [
   { label: "About", href: "#about" },
@@ -14,123 +11,82 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-
-      // Determine active section
-      const sections = navLinks.map((l) => l.href.replace("#", ""));
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sections[i]);
-        if (el && window.scrollY >= el.offsetTop - 120) {
-          setActiveSection(sections[i]);
-          break;
-        }
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleNavClick = (href: string) => {
-    setMobileOpen(false);
+  const jumpTo = (href: string) => {
+    setOpen(false);
     const id = href.replace("#", "");
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
+    const target = document.getElementById(id);
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-[#0D1117]/90 backdrop-blur-md border-b border-white/5 shadow-lg shadow-black/20"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="container mx-auto px-6 lg:px-8 max-w-7xl">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <a
-            href="#"
-            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-            className="flex items-center gap-2 group"
-          >
-            <span className="font-display font-bold text-lg text-white tracking-tight">
-              PR
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#58A6FF] group-hover:shadow-[0_0_8px_#58A6FF] transition-shadow duration-300" />
-          </a>
-
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => {
-              const isActive = activeSection === link.href.replace("#", "");
-              return (
-                <button
-                  key={link.href}
-                  onClick={() => handleNavClick(link.href)}
-                  className={`relative px-4 py-2 text-sm font-subheading font-medium transition-colors duration-200 rounded-md group ${
-                    isActive
-                      ? "text-[#58A6FF]"
-                      : "text-[#8B949E] hover:text-[#E6EDF3]"
-                  }`}
-                >
-                  {link.label}
-                  <span
-                    className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-px bg-[#58A6FF] transition-all duration-300 ${
-                      isActive ? "w-4/5 opacity-100" : "w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-60"
-                    }`}
-                  />
-                </button>
-              );
-            })}
-            <a
-              href="mailto:princyrechal@gmail.com"
-              className="ml-4 px-4 py-1.5 text-sm font-subheading font-medium text-[#58A6FF] border border-[#58A6FF]/40 rounded-md hover:bg-[#58A6FF]/10 hover:border-[#58A6FF]/70 transition-all duration-200"
-            >
-              Hire Me
-            </a>
-          </nav>
-
-          {/* Mobile toggle */}
-          <button
-            className="md:hidden p-2 text-[#8B949E] hover:text-white transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
+      <div
+        className={`mx-auto max-w-6xl rounded-2xl transition-all duration-300 ${
+          scrolled ? "glass-panel" : "bg-white/70 border border-[#d8e0f0]/55"
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6">
+          <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-left">
+            <BrandLogo compact />
           </button>
-        </div>
-      </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden bg-[#0D1117]/95 backdrop-blur-md border-b border-white/5">
-          <nav className="container mx-auto px-6 py-4 flex flex-col gap-1">
+          <nav className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
               <button
                 key={link.href}
-                onClick={() => handleNavClick(link.href)}
-                className="text-left px-3 py-2.5 text-sm font-subheading text-[#8B949E] hover:text-white hover:bg-white/5 rounded-md transition-all duration-200"
+                onClick={() => jumpTo(link.href)}
+                className="rounded-lg px-3 py-2 text-sm font-semibold text-[#415272] transition-colors hover:bg-[#e8eefb] hover:text-[#0f2e63]"
               >
                 {link.label}
               </button>
             ))}
             <a
               href="mailto:princyrechal@gmail.com"
-              className="mt-2 px-3 py-2.5 text-sm font-subheading font-medium text-[#58A6FF] border border-[#58A6FF]/30 rounded-md hover:bg-[#58A6FF]/10 transition-all duration-200 text-center"
+              className="ml-3 rounded-lg bg-[#0f3f8b] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1551aa]"
             >
-              Hire Me
+              Book a Call
             </a>
           </nav>
+
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Toggle navigation"
+            className="rounded-lg border border-[#d7deec] p-2 text-[#23385f] md:hidden"
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
-      )}
+
+        {open && (
+          <nav className="space-y-1 border-t border-[#d8deeb] px-4 py-3 md:hidden">
+            {navLinks.map((link) => (
+              <button
+                key={link.href}
+                onClick={() => jumpTo(link.href)}
+                className="block w-full rounded-lg px-3 py-2 text-left text-sm font-semibold text-[#415272] hover:bg-[#e8eefb]"
+              >
+                {link.label}
+              </button>
+            ))}
+            <a
+              href="mailto:princyrechal@gmail.com"
+              className="mt-2 block rounded-lg bg-[#0f3f8b] px-3 py-2 text-center text-sm font-semibold text-white"
+            >
+              Book a Call
+            </a>
+          </nav>
+        )}
+      </div>
     </header>
   );
 }
