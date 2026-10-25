@@ -1,253 +1,294 @@
+import CopyEmail from "@/components/CopyEmail";
 import Footer from "@/components/Footer";
+import JobCard from "@/components/JobCard";
+import MiniPlanner from "@/components/MiniPlanner";
 import Navbar from "@/components/Navbar";
-import { ArrowUpRight, CheckCircle2, Cloud, Code2, Layers3, ShieldCheck, Sparkles } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import Rail from "@/components/Rail";
+import { modes, patterns, person, product, runs, stack } from "@/data/site";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useState } from "react";
 
-const skillGroups = [
-  {
-    title: "Cloud & Platform",
-    items: ["Kubernetes", "GKE", "AKS", "Terraform", "Helm", "Docker"],
-    icon: Cloud,
-  },
-  {
-    title: "Reliability & Security",
-    items: ["SLO Design", "Observability", "Policy as Code", "Identity Hardening", "DR Planning"],
-    icon: ShieldCheck,
-  },
-  {
-    title: "Delivery Systems",
-    items: ["GitHub Actions", "Argo CD", "Release Automation", "Quality Gates", "Runtime Monitoring"],
-    icon: Layers3,
-  },
-];
-
-const projects = [
-  {
-    name: "Multi-Region Kubernetes Foundation",
-    result: "Cut deployment lead time by 52% with standardized cluster templates and promotion workflows.",
-    stack: ["Terraform", "GKE", "Argo CD"],
-  },
-  {
-    name: "FinOps Guardrails for Shared Cloud",
-    result: "Reduced monthly overspend by 28% through tagging policy checks and budget-aware pipelines.",
-    stack: ["OPA", "GitHub Actions", "BigQuery"],
-  },
-  {
-    name: "Incident-Ready Observability Platform",
-    result: "Dropped MTTR from 47m to 18m using SLO-backed alerts and service ownership dashboards.",
-    stack: ["Prometheus", "Grafana", "OpenTelemetry"],
-  },
-];
-
-const experiences = [
-  {
-    period: "2024 - Present",
-    title: "Cloud & DevOps Engineer",
-    summary: "Leading platform reliability initiatives, internal developer tooling, and delivery automation.",
-  },
-  {
-    period: "2022 - 2024",
-    title: "Infrastructure Engineer",
-    summary: "Built reusable Terraform modules and scalable CI/CD foundations for multi-team cloud workloads.",
-  },
-  {
-    period: "2020 - 2022",
-    title: "Systems Engineer",
-    summary: "Improved deployment consistency and production observability for customer-facing services.",
-  },
-];
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
-  show: (delay = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.65, delay } }),
-};
+type Mode = keyof typeof modes;
 
 export default function Home() {
-  const reduceMotion = useReducedMotion();
+  const [mode, setMode] = useState<Mode>("founder");
+  const reduce = useReducedMotion();
+  const m = modes[mode];
+  const fade = reduce
+    ? {}
+    : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.28 } };
+  const d = (ms: number) => ({ "--d": `${ms}ms` }) as React.CSSProperties;
 
   return (
-    <div className="min-h-screen">
+    <div id="top">
       <Navbar />
-      <main className="pt-28">
-        <section className="brand-container relative pb-20 pt-10 md:pt-16">
-          <div className="grid-lines absolute inset-0 -z-10 rounded-3xl opacity-45" />
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-            <motion.div
-              initial={reduceMotion ? false : "hidden"}
-              animate={reduceMotion ? {} : "show"}
-              variants={fadeUp}
-              custom={0}
-            >
-              <p className="section-kicker mb-5">Cloud Engineering Portfolio</p>
-              <h1 className="max-w-3xl text-4xl font-bold leading-tight text-[#162749] md:text-6xl">
-                Building modern infrastructure that teams trust at scale.
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-relaxed text-[#4f607f]">
-                I design cloud platforms, resilient delivery systems, and operational standards that let product teams move
-                faster without sacrificing reliability.
+
+      <div className="sheet">
+        <div className="wrap page">
+          <Rail />
+
+          <main className="content">
+            {/* ---------------- hello: who I am ---------------- */}
+            <section id="hello" aria-labelledby="hero-title" className="hero">
+              <div className="grid items-start gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:gap-12">
+                <div>
+                  <h1 id="hero-title" className="h-hero rise" style={d(0)}>
+                    {person.hello}
+                    <br />
+                    I'm the founder of{" "}
+                    <a className="grad" href={person.company.href} target="_blank" rel="noreferrer">
+                      deadlinemate.com
+                    </a>
+                  </h1>
+                  <p className="rise mt-5 text-[clamp(1.05rem,1rem+0.4vw,1.25rem)] leading-snug text-[var(--ink-soft)]" style={d(140)}>
+                    {person.secondLine}
+                  </p>
+                  <div className="rise mt-6 space-y-4 text-[1.05rem] leading-relaxed text-[var(--ink-soft)]" style={d(180)}>
+                    {person.bio.map((p) => (
+                      <p key={p}>{p}</p>
+                    ))}
+                  </div>
+                  <div className="rise mt-7 flex flex-wrap gap-3" style={d(260)}>
+                    <a className="btn btn-ink" href="#work">
+                      About DeadlineMate
+                    </a>
+                    <a className="btn btn-quiet" href="#story">
+                      My journey
+                    </a>
+                    <a className="btn btn-quiet" href={`mailto:${person.email}`}>
+                      Say hello
+                    </a>
+                  </div>
+                </div>
+
+                {/* portrait, or a monogram until there is one */}
+                <div className="rise avatar-wrap md:pt-2" style={d(140)}>
+                  {person.photo ? (
+                    <img
+                      src={person.photo}
+                      srcSet={`${person.photoSmall} 400w, ${person.photo} 800w`}
+                      sizes="(min-width: 768px) 260px, 180px"
+                      alt={person.fullName}
+                      className="portrait"
+                      width={260}
+                      height={260}
+                      fetchPriority="high"
+                    />
+                  ) : (
+                    <div className="monogram" aria-hidden="true">
+                      <span>PR</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <dl className="facts rise mt-12" style={d(320)}>
+                {person.quickFacts.map((f) => (
+                  <div className="fact" key={f.label}>
+                    <dt className="meta">{f.label}</dt>
+                    <dd className="font-semibold text-[var(--ink)]">{f.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+            </section>
+
+            {/* ---------------- about me, in two halves ---------------- */}
+            <section id="about" aria-labelledby="about-title" className="section">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="kicker">About me</p>
+                  <p className="meta mt-1">Two halves of the same person. Pick one.</p>
+                </div>
+                <div className="seg" role="tablist" aria-label="Which half of the work">
+                  {(Object.keys(modes) as Mode[]).map((k) => (
+                    <button
+                      key={k}
+                      type="button"
+                      role="tab"
+                      aria-selected={mode === k}
+                      className={`seg-btn ${mode === k ? "is-on" : ""}`}
+                      onClick={() => setMode(k)}
+                    >
+                      {modes[k].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div key={mode} {...fade}>
+                  <h2 id="about-title" className="h-section mt-5 max-w-[22ch]">
+                    {m.heading[0]}
+                    <em>{m.heading[1]}</em>
+                  </h2>
+                  <div className="mt-8 grid gap-8 text-[1.05rem] leading-relaxed text-[var(--ink-soft)] lg:grid-cols-[1.2fr_1fr] lg:gap-14">
+                    <div className="space-y-5">
+                      {m.paragraphs.map((p, i) => (
+                        <p key={i} className={i === 0 ? "text-[var(--ink)]" : ""}>
+                          {p}
+                        </p>
+                      ))}
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-[var(--ink)]">{m.runbookTitle}</h3>
+                      <p className="meta mt-1 mb-3">If the left happens, the right follows.</p>
+                      {m.runbook.map((r) => (
+                        <div className="runbook-row" key={r.when}>
+                          <p className="font-semibold text-[var(--ink)]">{r.when}</p>
+                          <p className="text-[var(--ink-soft)]">{r.then}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </section>
+
+            {/* ---------------- my journey ---------------- */}
+            <section id="story" aria-labelledby="story-title" className="section">
+              <p className="kicker">My journey</p>
+              <h2 id="story-title" className="h-section mt-5">
+                How I got <em>here.</em>
+              </h2>
+              <p className="lede mt-4">
+                A computing degree in Lancashire, three years freelancing for clients around the world, production
+                platforms in the UK, and now a company of my own. Two chapters are still being written.
               </p>
+
+              <div className="mt-12 grid gap-12">
+                {runs.map((run) => (
+                  <div key={run.name} className="run">
+                    <div className="run-head">
+                      <h3 className="text-[1.05rem] font-bold tracking-tight text-[var(--ink)]">{run.name}</h3>
+                      <p className="meta">{run.blurb}</p>
+                    </div>
+                    <div className="grid gap-4">
+                      {run.jobs.map((job) => (
+                        <JobCard key={job.title + job.period} job={job} defaultOpen={job.status === "running"} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ---------------- deadlinemate ---------------- */}
+            <section id="work" aria-labelledby="work-title" className="section">
+              <p className="kicker">DeadlineMate, my company</p>
+              <h2 id="work-title" className="h-section mt-5 max-w-[20ch]">
+                I built the calmest way to never miss a <em>deadline.</em>
+              </h2>
+
+              <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_1fr] lg:gap-12">
+                <div>
+                  <p className="status status-live">
+                    <span className="dot" aria-hidden="true" />
+                    {product.kind}
+                  </p>
+                  <p className="mt-5 max-w-[32rem] text-[1.1rem] leading-relaxed text-[var(--ink)]">{product.summary}</p>
+                  <ol className="mt-7 grid gap-3">
+                    {product.pillars.map((p) => (
+                      <li className="pillar" key={p.title}>
+                        <h4>{p.title}</h4>
+                        <p className="mt-1 text-[0.95rem] text-[var(--ink-soft)]">{p.text}</p>
+                      </li>
+                    ))}
+                  </ol>
+                  <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-1 text-sm text-[var(--ink-soft)]">
+                    {product.proof.map((p) => (
+                      <li key={p} className="flex items-center gap-2">
+                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--violet)]" aria-hidden="true" />
+                        {p}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8">
+                    <a className="btn btn-ink" href={product.href} target="_blank" rel="noreferrer">
+                      {product.cta}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="lg:pt-2">
+                  <MiniPlanner />
+                  <p className="meta mt-3">A working slice of the product. Tick something off and watch the plan re-sort.</p>
+                </div>
+              </div>
+
+              <div className="mt-20">
+                <h3 className="text-[1.35rem] font-bold tracking-tight text-[var(--ink)]">Platform work I keep being asked to do again</h3>
+                <p className="meta mt-1">Patterns from the last four years, told without the employer names.</p>
+                <div className="mt-6 grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
+                  {patterns.map((p) => (
+                    <article key={p.title} className="border-t border-[var(--line)] py-6">
+                      <p className="meta">{p.kind}</p>
+                      <h4 className="mt-1 text-[1.0625rem] font-bold tracking-tight text-[var(--ink)]">{p.title}</h4>
+                      <p className="mt-2 text-[0.9375rem] text-[var(--ink-soft)]">{p.summary}</p>
+                      <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Technologies">
+                        {p.tags.map((t) => (
+                          <li className="tag" key={t}>
+                            {t}
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ---------------- what I use ---------------- */}
+            <section id="stack" aria-labelledby="stack-title" className="section">
+              <p className="kicker">What I use</p>
+              <h2 id="stack-title" className="h-section mt-5">
+                The tools I reach <em>for.</em>
+              </h2>
+              <p className="lede mt-4">Boring where it should be boring. Every tool here has been on call with me.</p>
+              <div className="mt-8">
+                {stack.map((s) => (
+                  <div className="stack-row" key={s.group}>
+                    <p className="font-semibold text-[var(--ink)]">{s.group}</p>
+                    <p className="text-[var(--ink-soft)]">
+                      {s.items.map((item) => (
+                        <span key={item}>{item}</span>
+                      ))}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ---------------- say hello ---------------- */}
+            <section id="contact" aria-labelledby="contact-title" className="section">
+              <p className="kicker">Say hello</p>
+              <h2 id="contact-title" className="h-section mt-5 max-w-[20ch]">
+Get in <em>touch with me.</em>
+              </h2>
+              <p className="lede mt-4">
+                Whether it's about reliability, platform engineering, DeadlineMate, or something I haven't thought of
+                yet. A short email is the quickest way to reach me.
+              </p>
+              <div className="mt-8">
+                <CopyEmail email={person.email} />
+              </div>
               <div className="mt-8 flex flex-wrap gap-3">
-                <a
-                  href="#projects"
-                  className="rounded-xl bg-[#123f89] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#1957b7]"
-                >
-                  Explore Projects
+                <a className="btn btn-ink" href={person.linkedin} target="_blank" rel="noreferrer">
+                  LinkedIn
                 </a>
-                <a
-                  href="#contact"
-                  className="rounded-xl border border-[#c7d4eb] bg-white/85 px-5 py-3 text-sm font-bold text-[#193868] transition-colors hover:bg-white"
-                >
-                  Start a Conversation
+                <a className="btn btn-quiet" href={person.github} target="_blank" rel="noreferrer">
+                  GitHub
+                </a>
+                <a className="btn btn-quiet" href={person.company.href} target="_blank" rel="noreferrer">
+                  DeadlineMate
                 </a>
               </div>
-              <div className="mt-10 flex flex-wrap gap-5 text-sm text-[#526280]">
-                <span className="inline-flex items-center gap-2">
-                  <Sparkles size={16} className="text-[#0f66b4]" /> CI/CD Strategy
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <ShieldCheck size={16} className="text-[#0f66b4]" /> Reliability by Design
-                </span>
-                <span className="inline-flex items-center gap-2">
-                  <Code2 size={16} className="text-[#0f66b4]" /> Infrastructure as Code
-                </span>
-              </div>
-            </motion.div>
+            </section>
+          </main>
+        </div>
 
-            <motion.aside
-              initial={reduceMotion ? false : "hidden"}
-              animate={reduceMotion ? {} : "show"}
-              variants={fadeUp}
-              custom={0.12}
-              className="glass-panel rounded-3xl p-6 md:p-8"
-            >
-              <p className="section-kicker">Snapshot</p>
-              <h2 className="mt-3 text-2xl font-semibold text-[#19305a]">Outcome-focused engineering</h2>
-              <ul className="mt-6 space-y-4">
-                <li className="flex items-start gap-3 text-[#51617f]">
-                  <CheckCircle2 size={18} className="mt-0.5 text-[#0f66b4]" />
-                  Platform architecture for secure multi-environment delivery.
-                </li>
-                <li className="flex items-start gap-3 text-[#51617f]">
-                  <CheckCircle2 size={18} className="mt-0.5 text-[#0f66b4]" />
-                  Consistent release pipelines with quality and rollback controls.
-                </li>
-                <li className="flex items-start gap-3 text-[#51617f]">
-                  <CheckCircle2 size={18} className="mt-0.5 text-[#0f66b4]" />
-                  Operational metrics that improve reliability and team velocity.
-                </li>
-              </ul>
-              <div className="mt-7 rounded-2xl border border-[#d2dbec] bg-[#eff4ff] p-4">
-                <p className="text-xs uppercase tracking-[0.12em] text-[#4d6794]">Current Focus</p>
-                <p className="mt-2 text-sm font-semibold text-[#1e3a67]">
-                  Kubernetes governance, secure CI/CD blueprints, and observability maturity.
-                </p>
-              </div>
-            </motion.aside>
-          </div>
-        </section>
-
-        <section id="about" className="brand-container py-12 md:py-16">
-          <div className="glass-panel rounded-3xl p-8 md:p-10">
-            <p className="section-kicker">About</p>
-            <h2 className="mt-4 text-3xl font-bold md:text-4xl">
-              Infrastructure partner for <span className="headline-gradient">high-growth engineering teams</span>
-            </h2>
-            <p className="mt-5 max-w-3xl text-base leading-relaxed text-[#4f607f] md:text-lg">
-              I work at the intersection of platform engineering and product delivery. My approach balances speed,
-              maintainability, and operational safety so teams can ship confidently across cloud environments.
-            </p>
-          </div>
-        </section>
-
-        <section id="skills" className="brand-container py-12 md:py-16">
-          <p className="section-kicker mb-3">Capabilities</p>
-          <h2 className="mb-8 text-3xl font-bold text-[#1b2f55] md:text-4xl">Skills that move systems forward</h2>
-          <div className="grid gap-5 md:grid-cols-3">
-            {skillGroups.map(({ title, items, icon: Icon }) => (
-              <article key={title} className="glass-panel rounded-2xl p-6">
-                <div className="mb-4 inline-flex rounded-lg bg-[#e8f1ff] p-2 text-[#1256a7]">
-                  <Icon size={18} />
-                </div>
-                <h3 className="text-lg font-semibold text-[#1f355f]">{title}</h3>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {items.map((item) => (
-                    <span key={item} className="chip">
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="projects" className="brand-container py-12 md:py-16">
-          <p className="section-kicker mb-3">Selected Work</p>
-          <h2 className="mb-8 text-3xl font-bold text-[#1b2f55] md:text-4xl">Recent project outcomes</h2>
-          <div className="grid gap-5 md:grid-cols-3">
-            {projects.map((project) => (
-              <article key={project.name} className="glass-panel rounded-2xl p-6 transition-transform hover:-translate-y-1">
-                <h3 className="text-lg font-semibold text-[#1f355f]">{project.name}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-[#51617f]">{project.result}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {project.stack.map((tool) => (
-                    <span key={tool} className="chip">
-                      {tool}
-                    </span>
-                  ))}
-                </div>
-                <a href="#contact" className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-[#1558ab]">
-                  Discuss this model <ArrowUpRight size={14} />
-                </a>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="experience" className="brand-container py-12 md:py-16">
-          <p className="section-kicker mb-3">Experience</p>
-          <h2 className="mb-8 text-3xl font-bold text-[#1b2f55] md:text-4xl">Career progression</h2>
-          <div className="space-y-4">
-            {experiences.map((item) => (
-              <article key={item.title} className="glass-panel rounded-2xl p-6 md:p-7">
-                <p className="font-mono text-xs uppercase tracking-[0.13em] text-[#5470a1]">{item.period}</p>
-                <h3 className="mt-1 text-xl font-semibold text-[#1f355f]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[#51617f]">{item.summary}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="contact" className="brand-container pb-16 pt-12 md:pb-20 md:pt-16">
-          <div className="glass-panel rounded-3xl p-8 md:p-12">
-            <p className="section-kicker">Contact</p>
-            <h2 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-[#1b2f55] md:text-5xl">
-              Let&apos;s build your next reliable cloud platform.
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#4f607f] md:text-lg">
-              Available for full-time roles and consulting engagements focused on cloud architecture, DevOps transformation,
-              and platform reliability.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <a
-                href="mailto:princyrechal@gmail.com"
-                className="rounded-xl bg-[#123f89] px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-[#1957b7]"
-              >
-                princyrechal@gmail.com
-              </a>
-              <a
-                href="https://linkedin.com/in/princyrechal"
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-xl border border-[#c7d4eb] bg-white/85 px-5 py-3 text-sm font-bold text-[#193868] transition-colors hover:bg-white"
-              >
-                LinkedIn Profile
-              </a>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 }
