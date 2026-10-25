@@ -1,6 +1,6 @@
 /*
- * DESIGN PHILOSOPHY: "Obsidian Architecture" — Swiss Modernism applied to Dark Tech Interfaces
- * Dark theme default. Single-page portfolio with smooth scroll navigation.
+ * Lavender on white. A single-page site read as a status page for a person.
+ * Light theme only; sections are anchored and smooth-scrolled.
  */
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
