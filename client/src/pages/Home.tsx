@@ -66,12 +66,12 @@ export default function Home() {
                   {person.photo ? (
                     <img
                       src={person.photo}
-                      srcSet={`${person.photoSmall} 400w, ${person.photo} 800w`}
-                      sizes="(min-width: 768px) 260px, 180px"
-                      alt={person.fullName}
+                      srcSet={`${person.photoSmall} 500w, ${person.photo} 1000w`}
+                      sizes="(min-width: 768px) 300px, 220px"
+                      alt={`${person.fullName} by the Thames, Tower Bridge behind`}
                       className="portrait"
-                      width={260}
-                      height={260}
+                      width={300}
+                      height={300}
                       fetchPriority="high"
                     />
                   ) : (
